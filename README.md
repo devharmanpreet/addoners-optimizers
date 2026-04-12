@@ -1,4 +1,4 @@
-🚀 Addoners Optimizer
+# 🚀 Addoners Optimizer
 
 Smart FPS Optimization for Minecraft (Fabric)
 
@@ -96,7 +96,7 @@ Feel free to:
 
 📜 License
 
-This project is licensed under the MIT License (or your chosen license).
+This project is licensed under the MIT License.
 
 ---
 
