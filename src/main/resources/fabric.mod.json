@@ -1,31 +1,27 @@
 {
 	"schemaVersion": 1,
-	"id": "modid",
+	"id": "addoners_optimizer",
 	"version": "${version}",
-	"name": "Example Mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Addoners Optimizer",
+	"description": "Production-grade adaptive performance engine for Minecraft. Supports Quartzglow & Skygleam shaders with intelligent optimization.",
 	"authors": [
-		"Me!"
+		"Team Addoners"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://teamaddoners.com",
+		"sources": "https://github.com/Teamaddoners/addoners-optimizers"
 	},
-	"license": "CC0-1.0",
-	"icon": "assets/modid/icon.png",
-	"environment": "*",
+	"license": "MIT",
+	"icon": "assets/addoners_optimizer/icon.png",
+	"environment": "client",
 	"entrypoints": {
-		"main": [
-			"com.example.ExampleMod"
-		],
 		"client": [
-			"com.example.client.ExampleModClient"
+			"com.teamaddoners.OptimizerMod"
 		]
 	},
 	"mixins": [
-		"modid.mixins.json",
 		{
-			"config": "modid.client.mixins.json",
+			"config": "addoners_optimizer.client.mixins.json",
 			"environment": "client"
 		}
 	],
