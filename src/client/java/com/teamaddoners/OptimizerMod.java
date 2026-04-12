@@ -79,8 +79,10 @@ public class OptimizerMod implements ClientModInitializer {
                 config
         );
 
-        // 8. Register 20-tick interval via ClientTickEvents
-        int interval = config.optimizerIntervalTicks;
+        // 8. Register tick event for the N-tick optimization cycle.
+        //    Belt-and-suspenders: clamp to >=1 even if config.validate() was bypassed somehow.
+        int interval = Math.max(1, config.optimizerIntervalTicks);
+        LoggerUtil.info("Optimizer cycle interval: {} tick(s)", interval);
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
             if (tickCounter >= interval) {

@@ -86,21 +86,48 @@ public class AddonersProfile {
     /**
      * Convenience — retrieves a typed setting value with a fallback default.
      *
+     * <p><b>Important:</b> Gson deserializes <em>all</em> JSON numbers as {@code Double}
+     * regardless of whether they look like integers. A naive {@code (T) raw} cast will
+     * therefore always throw {@link ClassCastException} for integer settings like
+     * {@code renderDistance}. This method handles that coercion explicitly.
+     *
      * @param key          Setting key.
      * @param defaultValue Fallback if the key is absent or has the wrong type.
      * @param <T>          Expected type.
-     * @return The setting value or defaultValue.
+     * @return The setting value coerced to T, or {@code defaultValue} on any failure.
      */
     @SuppressWarnings("unchecked")
     public <T> T getSetting(String key, T defaultValue) {
+        if (settings == null) return defaultValue;
         Object raw = settings.get(key);
         if (raw == null) return defaultValue;
+
+        // Gson deserializes all JSON numbers as Double. If the caller expects an
+        // integer type (Integer or Long) we must convert explicitly.
+        if (defaultValue instanceof Integer && raw instanceof Number) {
+            return (T) Integer.valueOf(((Number) raw).intValue());
+        }
+        if (defaultValue instanceof Long && raw instanceof Number) {
+            return (T) Long.valueOf(((Number) raw).longValue());
+        }
+        if (defaultValue instanceof Double && raw instanceof Number) {
+            return (T) Double.valueOf(((Number) raw).doubleValue());
+        }
+        if (defaultValue instanceof Float && raw instanceof Number) {
+            return (T) Float.valueOf(((Number) raw).floatValue());
+        }
+        if (defaultValue instanceof Boolean && raw instanceof Boolean) {
+            return (T) raw;
+        }
+
+        // Final attempt via direct cast — handles String and any other exact-match types.
         try {
             return (T) raw;
         } catch (ClassCastException e) {
             return defaultValue;
         }
     }
+
 
     @Override
     public String toString() {

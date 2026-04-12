@@ -47,12 +47,26 @@ public final class OptimizerEngine {
     }
 
     /**
-     * Called every 20 ticks by the tick event listener in {@link com.teamaddoners.OptimizerMod}.
+     * Called every N ticks by the tick event listener in {@link com.teamaddoners.OptimizerMod}.
+     * All subsystem calls are wrapped in a top-level try-catch so a bug in any single
+     * subsystem cannot crash the game — it is logged and the cycle is skipped instead.
      */
     public void cycle() {
         if (!config.enabled) return;
 
-        cycleCount++;
+        // Overflow-safe increment: reset to 1 instead of wrapping to negative.
+        // Guards the SHADER_CHECK_INTERVAL modulo check after very long sessions.
+        cycleCount = (cycleCount >= Integer.MAX_VALUE) ? 1 : cycleCount + 1;
+
+        try {
+            runCycle();
+        } catch (Exception e) {
+            LoggerUtil.error("Unexpected error in optimizer cycle #" + cycleCount + " — skipping this cycle.", e);
+        }
+    }
+
+    /** Inner cycle implementation — separated so the outer method can wrap it cleanly. */
+    private void runCycle() {
 
         // 1. Sample FPS into rolling buffer
         fpsMonitor.tick();

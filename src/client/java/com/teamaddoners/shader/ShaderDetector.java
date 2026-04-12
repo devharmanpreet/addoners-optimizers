@@ -1,7 +1,6 @@
 package com.teamaddoners.shader;
 
 import com.teamaddoners.util.LoggerUtil;
-import net.minecraft.client.MinecraftClient;
 
 /**
  * Attempts to detect the name of the currently active shader pack.
@@ -59,15 +58,11 @@ public final class ShaderDetector {
             return sysProp.trim().toLowerCase();
         }
 
-        // Priority 2: future Iris/Canvas API hook point
+        // Priority 2: future Iris/Canvas API hook point.
         // When an Iris integration module is added, it can inject the shader name here.
         // Example: return IrisBridge.getActiveShaderName().orElse("none");
 
-        // Priority 3: check if Minecraft is even running
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null) return "none";
-
-        // No shader loader detected — return "none"
+        // No shader loader detected — return "none".
         return "none";
     }
 }

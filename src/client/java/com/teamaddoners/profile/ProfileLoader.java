@@ -14,7 +14,8 @@ public final class ProfileLoader {
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
-            .serializeNulls()
+            // Note: serializeNulls() intentionally omitted — we don't want null fields
+            // written into .addoners files; defaults handle absent keys at read time.
             .create();
 
     private ProfileLoader() {}
@@ -57,7 +58,8 @@ public final class ProfileLoader {
             return profile;
 
         } catch (Exception e) {
-            LoggerUtil.error("Failed to parse profile at {}: {}", path, e.getMessage());
+            // Pass the Throwable directly so the full stack trace appears in logs.
+            LoggerUtil.error("Failed to parse profile at: " + path, e);
             return null;
         }
     }
