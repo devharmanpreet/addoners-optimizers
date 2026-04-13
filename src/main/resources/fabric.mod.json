@@ -8,10 +8,10 @@
 		"Team Addoners"
 	],
 	"contact": {
-		"homepage": "https://teamaddoners.com",
-		"sources": "https://github.com/Teamaddoners/addoners-optimizers"
+		"homepage": "https://addoners.net",
+		"sources": "https://github.com/devharmanpreet/addoners-optimizers"
 	},
-	"license": "MIT",
+	"license": "GPL-3.0",
 	"icon": "assets/addoners_optimizer/icon.png",
 	"environment": "client",
 	"entrypoints": {
@@ -19,12 +19,7 @@
 			"com.teamaddoners.OptimizerMod"
 		]
 	},
-	"mixins": [
-		{
-			"config": "addoners_optimizer.client.mixins.json",
-			"environment": "client"
-		}
-	],
+	"mixins": [],
 	"depends": {
 		"fabricloader": ">=0.18.6",
 		"minecraft": "~26.1.2",
