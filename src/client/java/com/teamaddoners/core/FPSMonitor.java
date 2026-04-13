@@ -21,7 +21,7 @@ public final class FPSMonitor {
     public void tick() {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null) return;
-        int raw = client.getCurrentFps();
+        int raw = client.currentFps;
         samples[head] = raw;
         head = (head + 1) % SAMPLE_SIZE;
         if (sampleCount < SAMPLE_SIZE) sampleCount++;
@@ -36,7 +36,7 @@ public final class FPSMonitor {
     public int getFPS() {
         if (sampleCount == 0) {
             MinecraftClient client = MinecraftClient.getInstance();
-            return (client != null) ? client.getCurrentFps() : 0;
+            return (client != null) ? client.currentFps : 0;
         }
         int sum = 0;
         for (int i = 0; i < sampleCount; i++) {
@@ -50,7 +50,7 @@ public final class FPSMonitor {
      */
     public int getRawFPS() {
         MinecraftClient client = MinecraftClient.getInstance();
-        return (client != null) ? client.getCurrentFps() : 0;
+        return (client != null) ? client.currentFps : 0;
     }
 
     /** Resets the sample buffer. */
