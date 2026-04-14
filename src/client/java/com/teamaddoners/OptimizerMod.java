@@ -5,6 +5,9 @@ import com.teamaddoners.config.ModConfig;
 import com.teamaddoners.core.FPSMonitor;
 import com.teamaddoners.core.OptimizerEngine;
 import com.teamaddoners.core.SystemMonitor;
+import com.teamaddoners.gui.KeyBindings;
+import com.teamaddoners.gui.OptimizerConfigScreen;
+import com.teamaddoners.gui.StatusOverlay;
 import com.teamaddoners.profile.ProfileManager;
 import com.teamaddoners.shader.ShaderDetector;
 import com.teamaddoners.shader.ShaderOptimizer;
@@ -87,6 +90,14 @@ public class OptimizerMod implements ClientModInitializer {
                 config
         );
 
+        // 8. Register status overlay HUD
+        StatusOverlay.register();
+        LoggerUtil.info("Status overlay registered");
+
+        // 8.5. Register keybindings
+        KeyBindings.register();
+        LoggerUtil.info("Keybindings registered");
+
         // 9. Tick loop (handles optimization scheduling)
         int interval = Math.max(1, config.optimizerIntervalTicks);
         LoggerUtil.info("Optimizer cycle interval: {} tick(s)", interval);
@@ -96,6 +107,11 @@ public class OptimizerMod implements ClientModInitializer {
 
             // 🔥 FPS smoothing update (IMPORTANT)
             fpsMonitor.tick();
+
+            // Check for config screen keybinding (period key)
+            if (KeyBindings.wasConfigScreenPressed()) {
+                OptimizerConfigScreen.open();
+            }
 
             if (tickCounter >= interval) {
                 tickCounter = 0;

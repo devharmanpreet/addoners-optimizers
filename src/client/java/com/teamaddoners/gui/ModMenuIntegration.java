@@ -1,10 +1,24 @@
 package com.teamaddoners.gui;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.screens.Screen;
+
 /**
- * Placeholder for future Mod Menu integration.
- * Currently, configuration is done via JSON files.
+ * ModMenu integration for the Addoners Optimizer.
+ * Provides config screen access through the ModMenu.
  */
+@Environment(EnvType.CLIENT)
 public class ModMenuIntegration {
-    // Mod Menu integration will be added in a future release
-    // when compatible APIs are available
+    
+    /**
+     * Returns the config screen for ModMenu.
+     * Called by ModMenu to open the config screen.
+     * 
+     * @param parentScreen The parent screen to return to when done
+     * @return The config screen to display
+     */
+    public static Screen getModConfigScreen(Screen parentScreen) {
+        return new OptimizerConfigScreen.ConfigGui(parentScreen);
+    }
 }
