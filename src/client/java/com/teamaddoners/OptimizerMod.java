@@ -5,11 +5,13 @@ import com.teamaddoners.config.ModConfig;
 import com.teamaddoners.core.FPSMonitor;
 import com.teamaddoners.core.OptimizerEngine;
 import com.teamaddoners.core.SystemMonitor;
+import com.teamaddoners.gui.StatusOverlay;
 import com.teamaddoners.profile.ProfileManager;
 import com.teamaddoners.shader.ShaderDetector;
 import com.teamaddoners.shader.ShaderOptimizer;
 import com.teamaddoners.shader.ShaderProfileBridge;
 import com.teamaddoners.util.LoggerUtil;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,22 +19,19 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 /**
  * Addoners Optimizer — primary client-side mod entry point.
- *
- * <p>Initializes all subsystems in dependency order and registers the tick
- * event listener that drives the 20-tick optimization cycle.
  */
 @Environment(EnvType.CLIENT)
 public class OptimizerMod implements ClientModInitializer {
 
     public static final String MOD_ID = "addoners_optimizer";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.0.0"; // TODO: sync with fabric.mod.json later
 
-    // ── Singleton subsystem access (read-only from other modules) ─────────────────
+    // ── Subsystems ───────────────────────────────────────────────────────────────
     private static ProfileManager profileManager;
     private static OptimizerEngine optimizerEngine;
     private static ShaderDetector shaderDetector;
 
-    // ── Tick counter for interval management ─────────────────────────────────────
+    // ── Tick management ──────────────────────────────────────────────────────────
     private int tickCounter = 0;
 
     @Override
@@ -41,9 +40,15 @@ public class OptimizerMod implements ClientModInitializer {
         LoggerUtil.info("  Addoners Optimizer v{} loading...", VERSION);
         LoggerUtil.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        // 1. Load configuration
+        // 1. Load config
         ModConfig config = ModConfig.get();
-        LoggerUtil.info("Config loaded — enabled={}, debugLogs={}", config.enabled, config.debugLogs);
+        LoggerUtil.info(
+                "Config — enabled={}, debugLogs={}, overlay={}, shaderOpt={}",
+                config.enabled,
+                config.debugLogs,
+                config.showStatus,
+                config.shaderOptimization
+        );
 
         if (!config.enabled) {
             LoggerUtil.warn("Optimizer is DISABLED via config. Skipping initialization.");
@@ -58,46 +63,72 @@ public class OptimizerMod implements ClientModInitializer {
         profileManager = new ProfileManager();
         profileManager.initialize();
 
-        // 4. Core monitoring
+        // 4. FPS monitor (with smoothing)
         FPSMonitor fpsMonitor = new FPSMonitor();
 
         // 5. Shader system
         shaderDetector = new ShaderDetector();
-        ShaderOptimizer shaderOptimizer = new ShaderOptimizer();
-        ShaderProfileBridge shaderProfileBridge = new ShaderProfileBridge(profileManager, shaderOptimizer);
+        LoggerUtil.info("Initial shader state: {}", shaderDetector.detect());
 
-        // 6. Adaptive optimization
+        ShaderOptimizer shaderOptimizer = new ShaderOptimizer();
+        ShaderProfileBridge shaderProfileBridge =
+                new ShaderProfileBridge(profileManager, shaderOptimizer);
+
+        // 6. Adaptive optimizer
         DynamicOptimizer dynamicOptimizer = new DynamicOptimizer(systemMonitor);
 
-        // 7. Optimizer engine
+        // 7. Core engine
         optimizerEngine = new OptimizerEngine(
                 fpsMonitor,
                 dynamicOptimizer,
                 profileManager,
                 shaderDetector,
+                shaderOptimizer,
                 shaderProfileBridge,
                 config
         );
 
-        // 8. Register tick event for the N-tick optimization cycle.
-        //    Belt-and-suspenders: clamp to >=1 even if config.validate() was bypassed somehow.
+        // 8. Tick loop
         int interval = Math.max(1, config.optimizerIntervalTicks);
         LoggerUtil.info("Optimizer cycle interval: {} tick(s)", interval);
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickCounter++;
+
+            // 🔥 FPS smoothing update (IMPORTANT)
+            fpsMonitor.tick();
+
             if (tickCounter >= interval) {
                 tickCounter = 0;
                 optimizerEngine.cycle();
             }
         });
 
+        // 9. Status overlay (V1.5 feature)
+        if (config.showStatus) {
+            StatusOverlay.getInstance(); // Registers to HUD rendering
+            LoggerUtil.info("Status overlay enabled.");
+        }
+
         LoggerUtil.info("Addoners Optimizer initialized successfully.");
         LoggerUtil.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
 
-    // ── Static accessors for other modules / future GUI ───────────────────────────
+    // ── Accessors ────────────────────────────────────────────────────────────────
 
-    public static ProfileManager getProfileManager() { return profileManager; }
-    public static OptimizerEngine getOptimizerEngine() { return optimizerEngine; }
-    public static ShaderDetector getShaderDetector() { return shaderDetector; }
+    public static ProfileManager getProfileManager() {
+        return profileManager;
+    }
+
+    public static OptimizerEngine getOptimizerEngine() {
+        return optimizerEngine;
+    }
+
+    public static ShaderDetector getShaderDetector() {
+        return shaderDetector;
+    }
+
+    public static boolean isInitialized() {
+        return optimizerEngine != null;
+    }
 }

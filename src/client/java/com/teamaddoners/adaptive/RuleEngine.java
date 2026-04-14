@@ -1,34 +1,18 @@
 package com.teamaddoners.adaptive;
 
 import com.teamaddoners.profile.AddonersProfile;
+import com.teamaddoners.util.LoggerUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Evaluates the {@code dynamicRules} section of an {@link AddonersProfile} against
- * the current FPS and produces a merged override settings map to be applied on top
- * of the profile's base settings.
- *
- * <p>Rule keys (evaluated in ascending severity):
- * <ul>
- *   <li>{@code fpsBelow60} — applied when FPS &lt; 60</li>
- *   <li>{@code fpsBelow30} — applied on top of above when FPS &lt; 30</li>
- *   <li>{@code fpsBelow20} — applied on top of above when FPS &lt; 20</li>
- * </ul>
+ * Evaluates dynamic rules of an AddonersProfile based on FPS.
  */
 public final class RuleEngine {
 
     private RuleEngine() {}
 
-    /**
-     * Evaluates all applicable dynamic rules for the current FPS reading.
-     *
-     * @param profile Current active profile. Returns empty map if null.
-     * @param fps     Current measured FPS.
-     * @return A merged map of setting overrides to apply, ordered by severity (most urgent wins).
-     *         Returns an empty map when no rules fire.
-     */
     public static Map<String, Object> evaluate(AddonersProfile profile, int fps) {
         if (profile == null) return new HashMap<>();
 
@@ -37,27 +21,47 @@ public final class RuleEngine {
 
         Map<String, Object> merged = new HashMap<>();
 
-        // Layer overrides from least to most severe so higher-severity keys take precedence
-        applyIf(merged, rules, "fpsBelow60", fps < 60);
-        applyIf(merged, rules, "fpsBelow30", fps < 30);
-        applyIf(merged, rules, "fpsBelow20", fps < 20);
+        // Track applied rules (for debugging/logging)
+        int applied = 0;
+
+        // 🔥 Order matters: low → high severity
+        applied += applyIf(merged, rules, "fpsBelow60", fps < 60);
+        applied += applyIf(merged, rules, "fpsBelow30", fps < 30);
+        applied += applyIf(merged, rules, "fpsBelow20", fps < 20);
+
+        // 🔥 Debug logging (only if rules triggered)
+        if (applied > 0) {
+            LoggerUtil.debug(
+                    "RuleEngine: fps={} appliedRules={} finalOverrides={}",
+                    fps,
+                    applied,
+                    merged.size()
+            );
+        }
 
         return merged;
     }
 
     /**
-     * Applies a named rule's overrides into the merged map if the condition is true.
+     * Applies a rule if condition is met.
+     * @return 1 if applied, 0 otherwise
      */
-    private static void applyIf(
+    private static int applyIf(
             Map<String, Object> merged,
             Map<String, Map<String, Object>> rules,
             String ruleKey,
-            boolean condition) {
+            boolean condition
+    ) {
+        if (!condition) return 0;
 
-        if (!condition) return;
         Map<String, Object> ruleSettings = rules.get(ruleKey);
-        if (ruleSettings != null) {
-            merged.putAll(ruleSettings);
+        if (ruleSettings == null || ruleSettings.isEmpty()) return 0;
+
+        // 🔥 Safe merge (override previous values)
+        for (Map.Entry<String, Object> entry : ruleSettings.entrySet()) {
+            merged.put(entry.getKey(), entry.getValue());
         }
+
+        return 1;
     }
 }

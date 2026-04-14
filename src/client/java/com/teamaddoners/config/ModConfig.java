@@ -14,6 +14,9 @@ import java.nio.file.Path;
  *
  * <p>All fields have safe defaults and are validated after each load to prevent
  * out-of-range values (e.g., a zero tick-interval) from causing runtime issues.
+ *
+ * <p><b>Backward compatibility:</b> Gson leaves absent JSON keys at their Java
+ * default values, so upgrading from an older config file is seamless.
  */
 public class ModConfig {
 
@@ -33,14 +36,41 @@ public class ModConfig {
     /** Master switch — disabling this completely bypasses all optimization logic. */
     public boolean enabled = true;
 
-    /** When true, extra diagnostic information is logged every optimizer cycle via INFO level. */
+    /**
+     * When true, extra diagnostic information is logged every optimizer cycle.
+     * Uses INFO level so it always appears regardless of the logger's config level.
+     */
     public boolean debugLogs = false;
+
+    /**
+     * When true, the status overlay HUD is rendered (v1.5).
+     */
+    public boolean showStatus = true;
+
+    /**
+     * When true, shader-aware optimization is enabled (v1.5).
+     */
+    public boolean shaderOptimization = true;
 
     /**
      * Minimum ticks between optimizer cycles. Default 20 (= 1 second at 20 TPS).
      * Clamped to [{@value #MIN_INTERVAL_TICKS}, {@value #MAX_INTERVAL_TICKS}] after loading.
      */
     public int optimizerIntervalTicks = 20;
+
+    /**
+     * Whether to render the Addoners Optimizer HUD overlay in the top-left corner.
+     * Shows current level, FPS, and active profile name.
+     * Added in v1.5.0.
+     */
+    public boolean showStatus = true;
+
+    /**
+     * When true, the optimizer reduces aggressiveness when a shader pack is detected.
+     * This preserves visual quality at the cost of slightly lower performance gains.
+     * Added in v1.5.0.
+     */
+    public boolean shaderOptimization = true;
 
     // ── Singleton ────────────────────────────────────────────────────────────────
 
@@ -53,6 +83,11 @@ public class ModConfig {
             instance = load();
         }
         return instance;
+    }
+
+    /** Forces a fresh reload from disk, replacing the cached instance. */
+    public static void reload() {
+        instance = load();
     }
 
     // ── Persistence ───────────────────────────────────────────────────────────────
@@ -119,5 +154,6 @@ public class ModConfig {
     public void save() {
         Path path = configPath();
         FileUtil.writeFile(path, GSON.toJson(this));
+        LoggerUtil.debug("Config saved to {}", path);
     }
 }
