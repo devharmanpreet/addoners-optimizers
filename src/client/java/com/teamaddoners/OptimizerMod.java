@@ -5,7 +5,6 @@ import com.teamaddoners.config.ModConfig;
 import com.teamaddoners.core.FPSMonitor;
 import com.teamaddoners.core.OptimizerEngine;
 import com.teamaddoners.core.SystemMonitor;
-import com.teamaddoners.gui.StatusOverlay;
 import com.teamaddoners.profile.ProfileManager;
 import com.teamaddoners.shader.ShaderDetector;
 import com.teamaddoners.shader.ShaderOptimizer;
@@ -88,7 +87,7 @@ public class OptimizerMod implements ClientModInitializer {
                 config
         );
 
-        // 8. Tick loop
+        // 9. Tick loop (handles optimization scheduling)
         int interval = Math.max(1, config.optimizerIntervalTicks);
         LoggerUtil.info("Optimizer cycle interval: {} tick(s)", interval);
 
@@ -103,12 +102,6 @@ public class OptimizerMod implements ClientModInitializer {
                 optimizerEngine.cycle();
             }
         });
-
-        // 9. Status overlay (V1.5 feature)
-        if (config.showStatus) {
-            StatusOverlay.getInstance(); // Registers to HUD rendering
-            LoggerUtil.info("Status overlay enabled.");
-        }
 
         LoggerUtil.info("Addoners Optimizer initialized successfully.");
         LoggerUtil.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

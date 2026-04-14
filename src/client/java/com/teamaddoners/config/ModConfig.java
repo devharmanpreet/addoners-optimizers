@@ -58,20 +58,6 @@ public class ModConfig {
      */
     public int optimizerIntervalTicks = 20;
 
-    /**
-     * Whether to render the Addoners Optimizer HUD overlay in the top-left corner.
-     * Shows current level, FPS, and active profile name.
-     * Added in v1.5.0.
-     */
-    public boolean showStatus = true;
-
-    /**
-     * When true, the optimizer reduces aggressiveness when a shader pack is detected.
-     * This preserves visual quality at the cost of slightly lower performance gains.
-     * Added in v1.5.0.
-     */
-    public boolean shaderOptimization = true;
-
     // ── Singleton ────────────────────────────────────────────────────────────────
 
     private static ModConfig instance;

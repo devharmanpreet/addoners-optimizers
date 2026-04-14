@@ -8,6 +8,14 @@ group = project.maven_group
 
 repositories {
 	mavenCentral()
+	maven {
+		name = "TerraformersMC"
+		url = "https://maven.terraformersmc.com/"
+	}
+	maven {
+		name = "Modrinth"
+		url = "https://api.modrinth.com/maven"
+	}
 }
 
 loom {
@@ -30,9 +38,6 @@ dependencies {
 
 	// Fabric API — use plain implementation, not modImplementation (no remapping needed)
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
-	// Mod Menu for in-game config screen
-	modImplementation "com.terraformersmc:modmenu:12.1.0+mc26.1"
 
 	// Gson is bundled with Minecraft
 	implementation 'com.google.code.gson:gson:2.10.1'

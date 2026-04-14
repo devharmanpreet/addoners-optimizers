@@ -81,7 +81,7 @@ public final class ShaderDetector {
         LoggerUtil.info("Shader loader scan: iris={}, canvas={}", irisPresent, canvasPresent);
     }
 
-    private String detect() {
+    public String detect() {
         // Priority 1: explicit system property (testing / external bridges)
         String sysProp = System.getProperty(SYSTEM_PROP_KEY);
         if (sysProp != null && !sysProp.isBlank()) {

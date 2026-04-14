@@ -1,18 +1,10 @@
 package com.teamaddoners.gui;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApiV3;
-import com.teamaddoners.config.ModConfig;
-import net.minecraft.client.gui.screens.Screen;
-
 /**
- * Mod Menu integration entry point.
- * Provides the in-game config screen for Addoners Optimizer.
+ * Placeholder for future Mod Menu integration.
+ * Currently, configuration is done via JSON files.
  */
-public class ModMenuIntegration implements ModMenuApiV3 {
-
-    @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return OptimizerConfigScreen::new;
-    }
+public class ModMenuIntegration {
+    // Mod Menu integration will be added in a future release
+    // when compatible APIs are available
 }
